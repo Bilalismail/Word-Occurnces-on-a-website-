@@ -1,14 +1,14 @@
 import csv
 import string
-import urllib
+import urllib.request
 from bs4 import BeautifulSoup
-import requests
-
-import StringIO
+from urllib.request import urlopen
+from six.moves.urllib.request import urlopen
 import re
-
+#takes the text from a html page
 url = "http://www.plainsimplewebdesign.com/"
-html = urllib.urlopen(url).read()
+html = urlopen(url)
+html = html.read()
 soup = BeautifulSoup(html, 'lxml')
 
 # kill all script and style elements
@@ -24,19 +24,15 @@ lines = (line.strip() for line in text.splitlines())
 chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
 # drop blank lines
 text = '\n'.join(chunk for chunk in chunks if chunk)
-
+#removes ascii errors
 text = text.encode('ascii', 'ignore').decode('ascii')
+#makes the text a string
+text = text.split()
 
-text= filter(lambda s: not str(s).lstrip('-').isdigit(), text)
 
-text = re.sub(r'[^\w]', ' ', text)
-
-#translator = str.maketrans('', '', string.punctuation)
 
 word_count = {}
-
-
-words = text.split()
+words = text
 for word in words:
     #word = word.translate(translator).lower()
     count = word_count.get(word, 0)
@@ -46,7 +42,7 @@ for word in words:
 word_count_list = sorted(word_count, key=word_count.get, reverse=True)
 for word in word_count_list[:10]:
     print(word, word_count[word])
-
+#outputs the values in a csv
 output_file = open('words.csv', 'w')
 writer = csv.writer(output_file)
 writer.writerow(['word', 'count'])
